@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Vattaloor Juma Masjid - Family Data Collection Form</title>
+</head>
+<body>
+    <h1>Vattaloor Juma Masjid - Family Data Collection Form</h1>
+    
+    <form id="familyDataForm">
+        <h2>Household Information</h2>
+        <div class="form-group">
+            <label for="houseNo">House No:</label>
+            <input type="text" id="houseNo" name="houseNo" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="tel" id="phoneNumber" name="phoneNumber" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="area">Area:</label>
+            <input type="text" id="area" name="area" required>
+        </div>
+        
+        <h2>Family Members</h2>
+        <div id="familyMembers">
+            <!-- Family member details will be added here dynamically -->
+        </div>
+        
+        <button type="button" onclick="addFamilyMember()">Add Family Member</button>
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <script>
+        let memberCount = 0;
+
+        function addFamilyMember() {
+            memberCount++;
+            const familyMembersDiv = document.getElementById('familyMembers');
+            
+            const memberHTML = `
+                <div class="family-member" id="member${memberCount}">
+                    <h3>Family Member ${memberCount}</h3>
+                    <div class="form-group">
+                        <label for="name${memberCount}">Name:</label>
+                        <input type="text" id="name${memberCount}" name="name${memberCount}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dob${memberCount}">Date of Birth:</label>
+                        <input type="date" id="dob${memberCount}" name="dob${memberCount}" required onchange="updateAge(${memberCount})">
+                        <span id="age${memberCount}" class="age-display"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address${memberCount}">Address:</label>
+                        <textarea id="address${memberCount}" name="address${memberCount}" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bloodGroup${memberCount}">Blood Group:</label>
+                        <input type="text" id="bloodGroup${memberCount}" name="bloodGroup${memberCount}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="job${memberCount}">Job:</label>
+                        <input type="text" id="job${memberCount}" name="job${memberCount}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adhaarProof${memberCount}">Adhaar Proof:</label>
+                        <input type="text" id="adhaarProof${memberCount}" name="adhaarProof${memberCount}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="education${memberCount}">Current/Last Education:</label>
+                        <input type="text" id="education${memberCount}" name="education${memberCount}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gender${memberCount}">Gender:</label>
+                        <select id="gender${memberCount}" name="gender${memberCount}" required>
+                            <option value="">Select</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maritalStatus${memberCount}">Marital Status:</label>
+                        <select id="maritalStatus${memberCount}" name="maritalStatus${memberCount}" required>
+                            <option value="">Select</option>
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                            <option value="divorced">Divorced</option>
+                            <option value="widowed">Widowed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="guardianRelation${memberCount}">Relation to Guardian:</label>
+                        <input type="text" id="guardianRelation${memberCount}" name="guardianRelation${memberCount}" required>
+                    </div>
+                    
+                    <div class="form-group checkbox-group" style="display:flex; align-items: center; justify-content:start;">
+                        <input type="checkbox" id="dailyPatient${memberCount}" name="dailyPatient${memberCount}">
+                        <label for="dailyPatient${memberCount}">Is Daily Patient</label>
+                    </div>
+
+                    <div class="form-group checkbox-group" style="display:flex; align-items: center; justify-content:start;">
+                        <input type="checkbox" id="isOrphan${memberCount}" name="isOrphan${memberCount}">
+                        <label for="isOrphan${memberCount}">Is Orphan</label>
+                    </div>
+                    
+                    <div id="adultInfo${memberCount}" style="display:none;">
+                        <div class="form-group">
+                            <label for="memberPhone${memberCount}">Phone Number:</label>
+                            <input type="tel" id="memberPhone${memberCount}" name="memberPhone${memberCount}">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            familyMembersDiv.insertAdjacentHTML('beforeend', memberHTML);
+            
+            // Add event listener to show/hide adult info based on age
+            const dobInput = document.getElementById(`dob${memberCount}`);
+            dobInput.addEventListener('change', function() {
+                updateAge(memberCount);
+            });
+        }
+
+        function calculateAge(birthDate) {
+            const today = new Date();
+            const birth = new Date(birthDate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function updateAge(memberIndex) {
+            const dobInput = document.getElementById(`dob${memberIndex}`);
+            const ageSpan = document.getElementById(`age${memberIndex}`);
+            const age = calculateAge(dobInput.value);
+            ageSpan.textContent = `Age: ${age}`;
+
+            // Show/hide adult info based on age
+            const adultInfoDiv = document.getElementById(`adultInfo${memberIndex}`);
+            adultInfoDiv.style.display = age >= 18 ? 'block' : 'none';
+        }
+
+        function submitForm() {
+            const form = document.getElementById('familyDataForm');
+            const formData = new FormData(form);
+            
+            // Create an object to store all the data
+            const familyData = {
+                household: {
+                    houseNo: formData.get('houseNo'),
+                    phoneNumber: formData.get('phoneNumber'),
+                    area: formData.get('area')
+                },
+                members: []
+            };
+
+            for (let i = 1; i <= memberCount; i++) {
+                const member = {
+                    name: formData.get(`name${i}`),
+                    dob: formData.get(`dob${i}`),
+                    address: formData.get(`address${i}`),
+                    bloodGroup: formData.get(`bloodGroup${i}`),
+                    job: formData.get(`job${i}`),
+                    adhaarProof: formData.get(`adhaarProof${i}`),
+                    education: formData.get(`education${i}`),
+                    gender: formData.get(`gender${i}`),
+                    maritalStatus: formData.get(`maritalStatus${i}`),
+                    guardianRelation: formData.get(`guardianRelation${i}`),
+                    isDailyPatient: formData.get(`dailyPatient${i}`) ? 'Yes' : 'No',
+                    isOrphan: formData.get(`isOrphan${i}`) ? 'Yes' : 'No',
+                    phoneNumber: formData.get(`memberPhone${i}`) || ''
+                };
+                familyData.members.push(member);
+            }
+                
+            // Console log the collected data
+            console.log('Family Data:', familyData);
+
+            // Show loading indicator
+            const submitButton = document.querySelector('button[onclick="submitForm()"]');
+            const originalButtonText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+
+            // Send data to Google Sheet
+            fetch('https://vattalur-data-collection-api.onrender.com', {
+                method: 'POST',
+                body: JSON.stringify(familyData),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.text())
+            .then(result => {
+                console.log('Success:', result);
+                alert('Form submitted successfully!');
+                // Reset the form and page
+                form.reset();
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the form. Please try again.');
+            })
+            .finally(() => {
+                // Reset submit button
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            });
+        }
+    </script>
+</body>
+</html>
